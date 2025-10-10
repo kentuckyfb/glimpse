@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
+# Glimpse
 
-## Project info
+Share authentic moments privately with your partner. Glimpse is a minimal, fast, mobile-friendly web app built with Vite, React, TypeScript, Tailwind CSS, and shadcn-ui, powered by Supabase for auth, database, and storage.
 
-**URL**: https://lovable.dev/projects/d783e6be-804b-412e-87d3-a860bb132f4e
+## Features
 
-## How can I edit this code?
+- **Partner-only sharing**: Designed for two people. Send and accept partner requests with friend codes or usernames.
+- **Realtime updates**: Partner requests and connections update live via Supabase Realtime.
+- **Media sharing**: Upload and browse recent photos stored in Supabase Storage.
+- **Clean UI**: Tailwind + shadcn-ui components with a polished dark theme.
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- Vite + React + TypeScript
+- Tailwind CSS + shadcn-ui
+- Supabase (Auth, Postgres, Realtime, Storage)
+- React Router
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d783e6be-804b-412e-87d3-a860bb132f4e) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js 18+ and npm
+- A Supabase project (free tier works)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 1) Clone and install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+git clone <your_repo_url>
+npm install
+```
 
-Follow these steps:
+### 2) Configure environment variables
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Create a `.env` file in the project root:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+VITE_SUPABASE_URL=<your_supabase_project_url>
+VITE_SUPABASE_ANON_KEY=<your_supabase_anon_key>
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 3) Run the app
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+App runs at http://localhost:5173 by default.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` – start the Vite dev server
+- `npm run build` – production build
+- `npm run build:dev` – development-mode build
+- `npm run preview` – preview the production build
+- `npm run lint` – run ESLint
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Folder Structure (key paths)
 
-## What technologies are used for this project?
+- `src/pages/Index.tsx` – home screen: partner state, recent media, requests
+- `src/pages/Friends.tsx` – partner management, adding by code/username
+- `src/components/FriendRequestManager.tsx` – realtime pending request UI
+- `src/index.css` – Tailwind layers and custom utilities
+- `tailwind.config.ts` – Tailwind theme config
+- `index.html` – base HTML shell
 
-This project is built with:
+## Supabase Setup
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Tables (suggested):
 
-## How can I deploy this project?
+- `profiles`: `id (uuid, auth.uid)`, `username (text)`, `friend_code (text)`
+- `friend_connections`: `id (uuid)`, `requester_id`, `addressee_id`, `status (pending|accepted|rejected)`
+- `posts`: `id`, `user_id`, `type (photo)`, `image_path (text)`, `created_at`
 
-Simply open [Lovable](https://lovable.dev/projects/d783e6be-804b-412e-87d3-a860bb132f4e) and click on Share -> Publish.
+Storage bucket:
 
-## Can I connect a custom domain to my Lovable project?
+- `glimpses` – for photo uploads. Ensure public read or signed URLs per your privacy needs.
 
-Yes, you can!
+Policies: add RLS policies to restrict access so users can only read their content and their partner’s content.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Deployment
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+You can deploy to any static host (Netlify, Vercel, Cloudflare Pages, etc.).
+
+1) Set environment variables in your hosting provider.
+2) Build and deploy:
+
+```bash
+npm run build
+```
+
+Serve the `dist/` output.
+
+## License
+
+MIT. Do what you like—at your own risk.
+
+
