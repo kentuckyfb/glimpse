@@ -94,10 +94,6 @@ export default {
 					'0%': { transform: 'translateY(-100%)', opacity: '0' },
 					'100%': { transform: 'translateY(0)', opacity: '1' }
 				},
-				'pulse-glow': {
-					'0%, 100%': { boxShadow: '0 0 20px rgba(255, 255, 255, 0.3)' },
-					'50%': { boxShadow: '0 0 40px rgba(255, 255, 255, 0.6)' }
-				},
 				'photo-pop': {
 					'0%': { transform: 'scale(0.8) rotate(-5deg)', opacity: '0' },
 					'100%': { transform: 'scale(1) rotate(0deg)', opacity: '1' }
@@ -108,7 +104,6 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'slide-up': 'slide-up 0.3s ease-out',
 				'slide-down': 'slide-down 0.3s ease-out',
-				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
 				'photo-pop': 'photo-pop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
 			},
 			fontFamily: {

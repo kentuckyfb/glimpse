@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0e1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="heartGradient192" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="192" height="192" rx="40" fill="url(#bgGradient)" />
+
+  <!-- Heart -->
+  <path d="M 96 145.92 L 48.48 98.4 L 39.36 89.28 C 32.64 82.56 29.28 73.44 29.28 64.32 C 29.28 55.2 32.64 46.08 39.36 39.36 C 52.8 25.92 74.88 25.92 88.32 39.36 L 96 47.04 L 103.68 39.36 C 117.12 25.92 139.2 25.92 152.64 39.36 C 159.36 46.08 162.72 55.2 162.72 64.32 C 162.72 73.44 159.36 82.56 152.64 89.28 L 143.52 98.4 L 96 145.92 Z"
+        fill="url(#heartGradient192)"
+        stroke="url(#heartGradient192)"
+        stroke-width="3" />
+</svg>

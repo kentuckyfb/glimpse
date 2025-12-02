@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(npx supabase link:*)",
+      "Bash(npx supabase login:*)",
+      "Bash(curl:*)",
+      "Bash(export SUPABASE_ACCESS_TOKEN=\"sbp_fad48833a12fbb7a7935abd4fad507ceafe4a3a3\")",
+      "Bash(npx supabase:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

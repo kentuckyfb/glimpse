@@ -44,6 +44,7 @@ export type Database = {
           created_at: string
           id: string
           image_path: string | null
+          met_irl: boolean
           note_text: string | null
           type: string
           user_id: string
@@ -53,6 +54,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_path?: string | null
+          met_irl?: boolean
           note_text?: string | null
           type: string
           user_id: string
@@ -62,6 +64,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_path?: string | null
+          met_irl?: boolean
           note_text?: string | null
           type?: string
           user_id?: string

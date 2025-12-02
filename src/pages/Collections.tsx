@@ -60,18 +60,18 @@ const Collections = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       {/* Header */}
-      <header className="flex-shrink-0 p-6 pb-4">
+      <header className="flex-shrink-0 p-4 sm:p-6 pb-4 pt-safe">
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate('/')}
-            className="nav-button glass-effect hover:bg-white/10"
+            className="w-10 h-10 sm:w-12 sm:h-12 nav-button glass-effect hover:bg-white/10 rounded-full flex items-center justify-center"
           >
-            <ArrowLeft className="w-6 h-6 text-white" />
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
           </Button>
 
-          <div className="funky-text text-2xl text-white text-shadow-glow">
+          <div className="funky-text text-xl sm:text-2xl text-foreground">
             Collections
           </div>
 
@@ -80,28 +80,31 @@ const Collections = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="nav-button glass-effect hover:bg-white/10"
+                className="w-10 h-10 sm:w-12 sm:h-12 nav-button glass-effect hover:bg-white/10 rounded-full flex items-center justify-center"
               >
-                <Plus className="w-6 h-6 text-white/60" />
+                <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-gray-900 border-white/20">
+            <DialogContent className="glass-effect border border-white/5 bg-background/95 backdrop-blur-xl rounded-2xl w-[90vw] max-w-md p-6">
               <DialogHeader>
-                <DialogTitle className="text-white font-display">Create New Collection</DialogTitle>
+                <DialogTitle className="text-foreground font-display text-center">Create New Collection</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
-                <Input
-                  placeholder="Collection name..."
-                  value={newCollectionName}
-                  onChange={(e) => setNewCollectionName(e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                  onKeyPress={(e) => e.key === 'Enter' && createCollection()}
-                />
+              <div className="space-y-4 mt-2">
+                <div>
+                  <h3 className="text-sm text-muted-foreground mb-2 font-medium">Collection name</h3>
+                  <Input
+                    placeholder="Enter collection name..."
+                    value={newCollectionName}
+                    onChange={(e) => setNewCollectionName(e.target.value)}
+                    className="bg-white/5 border-white/5 text-foreground rounded-2xl h-11 px-4 text-sm placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary"
+                    onKeyPress={(e) => e.key === 'Enter' && createCollection()}
+                  />
+                </div>
                 <Button
                   onClick={createCollection}
-                  className="w-full bg-white/10 border border-white/20 hover:bg-white/20 text-white"
-                  variant="outline"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-11 font-medium"
                 >
+                  <Plus className="w-4 h-4 mr-2" />
                   Create Collection
                 </Button>
               </div>
@@ -212,22 +215,25 @@ const Collections = () => {
                     Create Collection
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-gray-900 border-white/20">
+                <DialogContent className="glass-effect border border-white/5 bg-background/95 backdrop-blur-xl rounded-2xl w-[90vw] max-w-md p-6">
                   <DialogHeader>
-                    <DialogTitle className="text-white font-display">Create New Collection</DialogTitle>
+                    <DialogTitle className="text-foreground font-display text-center">Create New Collection</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4">
-                    <Input
-                      placeholder="Collection name..."
-                      value={newCollectionName}
-                      onChange={(e) => setNewCollectionName(e.target.value)}
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                    />
+                  <div className="space-y-4 mt-2">
+                    <div>
+                      <h3 className="text-sm text-muted-foreground mb-2 font-medium">Collection name</h3>
+                      <Input
+                        placeholder="Enter collection name..."
+                        value={newCollectionName}
+                        onChange={(e) => setNewCollectionName(e.target.value)}
+                        className="bg-white/5 border-white/5 text-foreground rounded-2xl h-11 px-4 text-sm placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary"
+                      />
+                    </div>
                     <Button
                       onClick={createCollection}
-                      className="w-full bg-white/10 border border-white/20 hover:bg-white/20 text-white"
-                      variant="outline"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-full h-11 font-medium"
                     >
+                      <Plus className="w-4 h-4 mr-2" />
                       Create Collection
                     </Button>
                   </div>

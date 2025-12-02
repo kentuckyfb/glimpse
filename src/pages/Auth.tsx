@@ -80,7 +80,7 @@ const Auth = () => {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/3 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-md glass-effect rounded-3xl p-6 sm:p-8 shadow-elegant border border-white/20">
+      <div className="relative z-10 w-full max-w-md glass-effect rounded-3xl p-6 sm:p-8 border border-white/20">
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="funky-text text-3xl sm:text-4xl text-foreground mb-2">glimpse</h1>
           <p className="text-muted-foreground text-sm">Share moments with your circle</p>

@@ -3,10 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Check, X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const FriendRequestManager = () => {
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     loadPendingRequests();
@@ -68,6 +70,14 @@ const FriendRequestManager = () => {
       return;
     }
 
+    // Invalidate partner cache when accepting a request
+    if (accept) {
+      queryClient.invalidateQueries({ queryKey: ["partner"] });
+      queryClient.invalidateQueries({ queryKey: ["media"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-media"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-post"] });
+    }
+
     toast({ title: accept ? "Partner added!" : "Request declined" });
     loadPendingRequests();
   };
@@ -75,17 +85,17 @@ const FriendRequestManager = () => {
   if (pendingRequests.length === 0) return null;
 
   return (
-    <div className="glass-effect rounded-2xl p-6 border-border max-w-md mx-auto my-4">
-      <h2 className="text-foreground font-semibold mb-4">Pending Partner Request</h2>
+    <div className="glass-effect rounded-3xl p-6 border border-white/5">
+      <h2 className="text-foreground font-semibold mb-4 text-sm">Pending Partner Request</h2>
       <div className="space-y-3">
         {pendingRequests.map((req) => (
-          <div key={req.id} className="flex items-center justify-between bg-muted/20 rounded-lg p-3">
-            <span className="text-foreground">@{req.requester?.username || "User"}</span>
+          <div key={req.id} className="flex items-center justify-between bg-white/5 rounded-2xl p-3 border border-white/5">
+            <span className="text-foreground font-medium text-sm">@{req.requester?.username || "User"}</span>
             <div className="flex gap-2">
-              <Button onClick={() => respondToRequest(req.id, true)} size="sm" className="bg-green-500 hover:bg-green-600">
+              <Button onClick={() => respondToRequest(req.id, true)} size="sm" className="bg-green-500 hover:bg-green-600 text-white rounded-full h-9 px-3">
                 <Check className="w-4 h-4" />
               </Button>
-              <Button onClick={() => respondToRequest(req.id, false)} size="sm" variant="destructive">
+              <Button onClick={() => respondToRequest(req.id, false)} size="sm" variant="destructive" className="rounded-full h-9 px-3">
                 <X className="w-4 h-4" />
               </Button>
             </div>

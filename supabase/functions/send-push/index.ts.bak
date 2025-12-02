@@ -1,0 +1,116 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface PushPayload {
+  recipientId: string;
+  type: "image" | "note";
+  content?: string;
+  imageUrl?: string;
+  fromName?: string;
+  timestamp?: string;
+}
+
+// Use Legacy FCM API (simpler, no JWT needed)
+async function sendFCMLegacy(tokens: string[], data: Record<string, string>) {
+  // For now, log that we would send push notifications
+  // The legacy API requires a Server Key which we don't have set up
+  console.log(`Would send push to ${tokens.length} device(s):`, data);
+
+  // Return mock success for now
+  // TODO: Get FCM Server Key and implement legacy API
+  return tokens.map(() => ({ status: "fulfilled" as const, value: { success: true } }));
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const payload: PushPayload = await req.json();
+    const { recipientId, type, content, imageUrl, fromName, timestamp } = payload;
+
+    console.log(`📱 Push request: ${type} to ${recipientId}`);
+    console.log(`Content: "${content?.substring(0, 50)}..."`);
+
+    if (!recipientId || !type) {
+      return new Response(
+        JSON.stringify({ error: "recipientId and type required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Get device tokens
+    const { data: deviceTokens, error: tokenError } = await supabaseClient
+      .from("device_tokens")
+      .select("token")
+      .eq("user_id", recipientId);
+
+    if (tokenError) {
+      console.error("❌ Error fetching tokens:", tokenError);
+      return new Response(
+        JSON.stringify({ error: "Failed to fetch tokens" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!deviceTokens || deviceTokens.length === 0) {
+      console.log("⚠️ No device tokens registered for user");
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          message: "No device tokens found - user needs to install Android app",
+          sentTo: 0
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log(`✅ Found ${deviceTokens.length} device token(s)`);
+
+    // Prepare FCM data
+    const pushData: Record<string, string> = {
+      type,
+      content: content || "",
+      imageUrl: imageUrl || "",
+      fromName: fromName || "Someone",
+      timestamp: timestamp || new Date().toISOString(),
+    };
+
+    // Send notifications
+    const tokens = deviceTokens.map((dt) => dt.token);
+    const results = await sendFCMLegacy(tokens, pushData);
+
+    const successCount = results.filter((r) => r.status === "fulfilled").length;
+
+    console.log(`✅ Push completed: ${successCount}/${tokens.length} succeeded`);
+
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        sentTo: tokens.length,
+        succeeded: successCount,
+        failed: tokens.length - successCount,
+        note: "Using mock push for now - Firebase JWT signing needs fixing"
+      }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("❌ Error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message || "Internal error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+

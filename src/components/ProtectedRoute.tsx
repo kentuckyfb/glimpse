@@ -26,7 +26,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-purple-600 to-pink-500">
-        <div className="animate-pulse-glow funky-text text-4xl text-white">glimpse</div>
+        <div className="funky-text text-4xl text-white">glimpse</div>
       </div>
     );
   }

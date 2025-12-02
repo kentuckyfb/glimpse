@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Send, Palette } from "lucide-react";
+import { X, Send, Palette, Type } from "lucide-react";
 
 interface NoteComposerProps {
   onClose: () => void;
-  onSave: (note: string, color: string) => void;
+  onSave: (note: string, bgColor: string, textColor: string) => void;
 }
 
-const NOTE_COLORS = [
+const BG_COLORS = [
+  // Light colors
   "#ffffff", // white
   "#fef3c7", // yellow
   "#d1fae5", // green
@@ -17,21 +18,52 @@ const NOTE_COLORS = [
   "#f3e8ff", // purple
   "#fed7d7", // red
   "#f0f0f0", // gray
+  // Dark colors
+  "#1a1a2e", // dark navy
+  "#16213e", // dark blue
+  "#0f3460", // deep blue
+  "#533483", // purple
+  "#2d4a4e", // teal
+  "#3d2f2f", // brown
+  "#1f1f1f", // charcoal
+  "#0a0e1a", // very dark
+];
+
+const TEXT_COLORS = [
+  // Dark colors for text
+  "#000000", // black
+  "#1a1a1a", // dark gray
+  "#2c3e50", // dark blue-gray
+  "#1e3a8a", // dark blue
+  "#7c3aed", // purple
+  "#be123c", // dark red
+  "#047857", // dark green
+  "#92400e", // dark brown
+  // Light colors for text
+  "#ffffff", // white
+  "#f3f4f6", // light gray
+  "#fef3c7", // light yellow
+  "#dbeafe", // light blue
+  "#fce7f3", // light pink
+  "#f3e8ff", // light purple
+  "#fed7d7", // light red
+  "#d1fae5", // light green
 ];
 
 export const NoteComposer = ({ onClose, onSave }: NoteComposerProps) => {
   const [note, setNote] = useState("");
-  const [selectedColor, setSelectedColor] = useState("#ffffff");
+  const [selectedBgColor, setSelectedBgColor] = useState("#ffffff");
+  const [selectedTextColor, setSelectedTextColor] = useState("#000000");
 
   const handleSave = () => {
     if (note.trim()) {
-      onSave(note.trim(), selectedColor);
+      onSave(note.trim(), selectedBgColor, selectedTextColor);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-      <div className="glass-effect rounded-3xl p-6 max-w-md w-full">
+      <div className="glass-effect rounded-3xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="funky-text text-xl text-white">Share a Note</h2>
@@ -47,32 +79,52 @@ export const NoteComposer = ({ onClose, onSave }: NoteComposerProps) => {
 
         {/* Note Content */}
         <div className="space-y-4">
-          <div 
+          <div
             className="p-4 rounded-2xl border-2 border-dashed border-white/20 min-h-[200px]"
-            style={{ backgroundColor: selectedColor + "20" }}
+            style={{ backgroundColor: selectedBgColor }}
           >
             <Textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="What's on your mind?"
-              className="w-full h-full bg-transparent border-none text-black placeholder:text-black/60 resize-none focus:ring-0 text-lg font-body"
-              style={{ color: selectedColor === "#ffffff" ? "#000000" : "#000000" }}
+              className="w-full h-full bg-transparent border-none resize-none focus:ring-0 text-lg font-body placeholder:opacity-50"
+              style={{ color: selectedTextColor }}
             />
           </div>
 
-          {/* Color Selection */}
+          {/* Background Color Selection */}
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Palette className="w-4 h-4 text-white/60" />
-              <span className="text-white/60 text-sm font-mono">Note Color</span>
+              <span className="text-white/60 text-sm font-mono">Background Color</span>
             </div>
-            <div className="flex space-x-2 justify-center">
-              {NOTE_COLORS.map((color) => (
+            <div className="grid grid-cols-8 gap-2">
+              {BG_COLORS.map((color) => (
                 <button
                   key={color}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full border-2 ${
-                    selectedColor === color ? 'border-white' : 'border-white/30'
+                  onClick={() => setSelectedBgColor(color)}
+                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${
+                    selectedBgColor === color ? 'border-white scale-110' : 'border-white/30'
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Text Color Selection */}
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Type className="w-4 h-4 text-white/60" />
+              <span className="text-white/60 text-sm font-mono">Text Color</span>
+            </div>
+            <div className="grid grid-cols-8 gap-2">
+              {TEXT_COLORS.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setSelectedTextColor(color)}
+                  className={`w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${
+                    selectedTextColor === color ? 'border-white scale-110' : 'border-white/30'
                   }`}
                   style={{ backgroundColor: color }}
                 />

@@ -153,31 +153,31 @@ const Friends = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background p-4">
-      <header className="flex items-center justify-between mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/settings")} className="text-foreground">
-          <ArrowLeft className="w-6 h-6" />
+    <div className="min-h-screen bg-[#0a0e1a] safe-area-inset">
+      <header className="flex items-center justify-between mb-6 p-4 sm:p-6 pt-safe">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/settings")} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center hover:bg-white/10 text-foreground">
+          <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </Button>
-        <h1 className="funky-text text-2xl text-foreground">Partner</h1>
-        <div className="w-10" />
+        <h1 className="funky-text text-xl sm:text-2xl text-foreground">Partner</h1>
+        <div className="w-10 sm:w-12" />
       </header>
 
-      <div className="max-w-md mx-auto space-y-6">
-        <div className="glass-effect rounded-2xl p-6 border-border">
-          <h2 className="text-foreground font-semibold mb-2">Your Friend Code</h2>
+      <div className="max-w-md mx-auto space-y-6 px-4 sm:px-6">
+        <div className="glass-effect rounded-3xl p-6 border border-white/[0.08] transition-all">
+          <h2 className="text-foreground font-semibold mb-3 text-sm">Your Friend Code</h2>
           <div className="flex items-center gap-2">
-            <div className="flex-1 bg-muted/40 rounded-lg px-4 py-2 text-foreground font-mono">
+            <div className="flex-1 bg-white/5 rounded-2xl px-4 py-3 text-foreground font-mono text-sm border border-white/5">
               {myFriendCode}
             </div>
-            <Button onClick={copyCode} variant="ghost" size="icon" className="text-foreground">
+            <Button onClick={copyCode} variant="ghost" size="icon" className="text-foreground w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center flex-shrink-0">
               {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
             </Button>
           </div>
         </div>
 
-        <div className="glass-effect rounded-2xl p-6 border-border">
-          <h2 className="text-foreground font-semibold mb-4">Add Your Partner</h2>
-          <p className="text-muted-foreground text-sm mb-4 font-mono">
+        <div className="glass-effect rounded-3xl p-6 border border-white/[0.08] transition-all">
+          <h2 className="text-foreground font-semibold mb-2 text-sm">Add Your Partner</h2>
+          <p className="text-muted-foreground text-xs mb-4 font-mono">
             This app is designed for sharing between 2 people
           </p>
           <div className="flex gap-2">
@@ -185,9 +185,9 @@ const Friends = () => {
               placeholder="@username or friend code"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="bg-muted/40 border-border text-foreground placeholder:text-muted-foreground"
+              className="bg-white/5 border-white/5 text-foreground placeholder:text-muted-foreground/50 rounded-2xl h-11 px-4 text-sm focus:border-primary focus:ring-1 focus:ring-primary"
             />
-            <Button onClick={addFriend} className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button onClick={addFriend} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-11 h-11 p-0 flex items-center justify-center flex-shrink-0">
               <UserPlus className="w-5 h-5" />
             </Button>
           </div>
@@ -196,11 +196,11 @@ const Friends = () => {
         <FriendRequestManager />
 
         {friends.length > 0 && (
-          <div className="glass-effect rounded-2xl p-6 border-border">
-            <h2 className="text-foreground font-semibold mb-4">Your Partner</h2>
+          <div className="glass-effect rounded-3xl p-6 border border-white/[0.08] transition-all">
+            <h2 className="text-foreground font-semibold mb-4 text-sm">Your Partner</h2>
             <div className="space-y-2">
               {friends.map((friend) => (
-                <div key={friend.id} className="bg-muted/20 rounded-lg p-3 text-foreground">
+                <div key={friend.id} className="bg-white/5 rounded-2xl p-3 text-foreground border border-white/5">
                   @{friend.requester?.username || friend.addressee?.username || "User"}
                 </div>
               ))}

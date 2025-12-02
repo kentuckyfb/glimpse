@@ -7,9 +7,14 @@ import { toast } from "@/hooks/use-toast";
 import { ImageEditor } from "@/components/ImageEditor";
 import { NoteComposer } from "@/components/NoteComposer";
 import { supabase } from "@/integrations/supabase/client";
+import { useInvalidateMedia } from "@/hooks/useMedia";
+import { useQueryClient } from "@tanstack/react-query";
+import { sendPushNotification, getNotificationRecipients } from "@/lib/pushNotifications";
 
 const Camera = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const invalidateMedia = useInvalidateMedia();
   const [isCapturing, setIsCapturing] = useState(false);
   const [flashEnabled, setFlashEnabled] = useState(false);
   const [timerEnabled, setTimerEnabled] = useState(false);
@@ -119,6 +124,11 @@ const Camera = () => {
 
       if (uploadError) throw uploadError;
 
+      // Get public URL for the image
+      const { data: { publicUrl } } = supabase.storage
+        .from('glimpses')
+        .getPublicUrl(fileName);
+
       // Save post to database
       const { error: dbError } = await supabase
         .from('posts')
@@ -131,9 +141,40 @@ const Camera = () => {
 
       if (dbError) throw dbError;
 
+      // Get user's profile for sender name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('id', user.id)
+        .single();
+
+      const senderName = profile?.display_name || profile?.username || 'Someone';
+
+      // Send push notifications to all friends
+      const friendIds = await getNotificationRecipients(user.id);
+
+      // Send push to each friend (in parallel for better performance)
+      await Promise.allSettled(
+        friendIds.map((friendId) =>
+          sendPushNotification({
+            recipientId: friendId,
+            type: 'image',
+            content: caption || '',
+            imageUrl: publicUrl,
+            fromName: senderName,
+          })
+        )
+      );
+
+      // Invalidate all relevant caches to refresh the data
+      invalidateMedia();
+      queryClient.invalidateQueries({ queryKey: ["feed-activities"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-post"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-media"] });
+
       setShowImageEditor(false);
       setCapturedImage(null);
-      
+
       toast({
         title: "📸 Glimpse Shared!",
         description: caption ? `"${caption}" - Your glimpse has been shared with your circle.` : "Your glimpse has been shared with your circle.",
@@ -147,24 +188,57 @@ const Camera = () => {
     }
   };
 
-  const handleNoteSave = async (note: string, color: string) => {
+  const handleNoteSave = async (note: string, bgColor: string, textColor: string) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     try {
+      // Store colors as JSON in caption field: {"bg": "#fff", "text": "#000"}
+      const colorData = JSON.stringify({ bg: bgColor, text: textColor });
+
       const { error } = await supabase
         .from('posts')
         .insert({
           user_id: user.id,
           type: 'note',
           note_text: note,
-          caption: color
+          caption: colorData
         });
 
       if (error) throw error;
 
+      // Get user's profile for sender name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('id', user.id)
+        .single();
+
+      const senderName = profile?.display_name || profile?.username || 'Someone';
+
+      // Send push notifications to all friends
+      const friendIds = await getNotificationRecipients(user.id);
+
+      // Send push to each friend (in parallel for better performance)
+      await Promise.allSettled(
+        friendIds.map((friendId) =>
+          sendPushNotification({
+            recipientId: friendId,
+            type: 'note',
+            content: note.substring(0, 140), // Limit to 140 chars for notification
+            fromName: senderName,
+          })
+        )
+      );
+
+      // Invalidate all relevant caches to refresh the data
+      invalidateMedia();
+      queryClient.invalidateQueries({ queryKey: ["feed-activities"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-post"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-media"] });
+
       setShowNoteComposer(false);
-      
+
       toast({
         title: "📝 Note Shared!",
         description: "Your note has been shared with your circle.",
@@ -188,7 +262,7 @@ const Camera = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-[#0a0e1a] relative overflow-hidden">
       {/* Camera View */}
       <div className="absolute inset-0 bg-black">
         <video
@@ -204,7 +278,7 @@ const Camera = () => {
         {/* Countdown overlay */}
         {countdown > 0 && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <div className="funky-text text-8xl text-white animate-pulse-glow">
+            <div className="funky-text text-8xl text-white">
               {countdown}
             </div>
           </div>
@@ -221,7 +295,7 @@ const Camera = () => {
             variant="ghost"
             size="icon"
             onClick={() => navigate('/')}
-            className="nav-button glass-effect hover:bg-accent w-10 h-10 sm:w-12 sm:h-12"
+            className="nav-button glass-effect hover:bg-white/10 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center"
           >
             <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
           </Button>
@@ -235,7 +309,7 @@ const Camera = () => {
               variant="ghost"
               size="icon"
               onClick={() => setFlashEnabled(!flashEnabled)}
-              className={`nav-button glass-effect w-10 h-10 sm:w-12 sm:h-12 ${flashEnabled ? 'bg-white/20' : 'hover:bg-white/10'}`}
+              className={`nav-button glass-effect w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${flashEnabled ? 'bg-white/20' : 'hover:bg-white/10'}`}
             >
               {flashEnabled ? (
                 <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
@@ -247,7 +321,7 @@ const Camera = () => {
               variant="ghost"
               size="icon"
               onClick={() => setTimerEnabled(!timerEnabled)}
-              className={`nav-button glass-effect w-10 h-10 sm:w-12 sm:h-12 ${timerEnabled ? 'bg-white/20' : 'hover:bg-white/10'}`}
+              className={`nav-button glass-effect w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${timerEnabled ? 'bg-white/20' : 'hover:bg-white/10'}`}
             >
               <Timer className={`w-4 h-4 sm:w-5 sm:h-5 ${timerEnabled ? 'text-blue-400' : 'text-white/60'}`} />
             </Button>
@@ -260,7 +334,7 @@ const Camera = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="nav-button glass-effect hover:bg-white/10 w-10 h-10 sm:w-12 sm:h-12"
+              className="nav-button glass-effect hover:bg-white/10 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center"
             >
               <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-white/60" />
             </Button>
@@ -269,14 +343,14 @@ const Camera = () => {
             <Button
               onClick={capturePhoto}
               disabled={isCapturing || countdown > 0}
-              className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-4 border-white/30 
-                hover:scale-110 active:scale-95 transition-all duration-200 
-                disabled:opacity-50 disabled:scale-100 flex-shrink-0"
+              className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-4 border-white/30
+                hover:scale-110 active:scale-95 transition-all duration-200
+                disabled:opacity-50 disabled:scale-100 flex-shrink-0 flex items-center justify-center"
             >
               <div className="absolute inset-2 rounded-full bg-white flex items-center justify-center">
                 <CameraIcon className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
               </div>
-              
+
               {isCapturing && (
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-spin">
                   <div className="absolute inset-1 rounded-full bg-white"></div>
@@ -289,17 +363,17 @@ const Camera = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowNoteComposer(true)}
-                className="nav-button glass-effect hover:bg-white/10 w-10 h-10 sm:w-12 sm:h-12"
+                className="nav-button glass-effect hover:bg-white/10 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center"
               >
                 <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white/60" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="nav-button glass-effect hover:bg-white/10 w-10 h-10 sm:w-12 sm:h-12 p-2"
+                className="nav-button glass-effect hover:bg-white/10 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center p-2.5"
                 onClick={() => navigate('/feed')}
               >
-                <div className="w-full h-full rounded-lg bg-gradient-to-br from-white/20 to-white/10 border border-white/20"></div>
+                <div className="w-full h-full rounded-md bg-gradient-to-br from-white/20 to-white/10 border border-white/20"></div>
               </Button>
             </div>
           </div>
