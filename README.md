@@ -1,4 +1,4 @@
-# Glimpse <
+# Glimpse 
 
 > Share authentic moments privately with your partner
 
